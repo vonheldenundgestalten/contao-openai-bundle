@@ -13,6 +13,7 @@ namespace Codebuster\GptBundle\ContaoManager;
 
 use Codebuster\GptBundle\GptBundle;
 use Contao\CoreBundle\ContaoCoreBundle;
+use Contao\NewsBundle\ContaoNewsBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
@@ -35,7 +36,10 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
     public function getBundles(ParserInterface $parser): array
     {
         return [
-            BundleConfig::create(GptBundle::class)->setLoadAfter([ContaoCoreBundle::class]),
+            BundleConfig::create(GptBundle::class)->setLoadAfter([
+                ContaoCoreBundle::class, 
+                ContaoNewsBundle::class
+            ]),
         ];
     }
 
