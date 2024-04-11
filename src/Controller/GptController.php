@@ -98,6 +98,10 @@ class GptController
             curl_close($curl);
 
             $content = json_decode($response);
+            
+            if($content->error->type === "insufficient_quota") {
+                return false;
+            }
 
             if($endpoint == 'Complete') {
                 $strReturn = $content->choices[0]->text;

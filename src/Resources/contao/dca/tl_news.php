@@ -29,15 +29,15 @@ class tl_news_gptbundle extends Contao\Backend {
         $strContent = '
             <script>
                 function generateSeo(btn,id,mode) {
-                    
+                                
                     const fetchPromise = fetch("/_gpt?id="+id+"&mode="+mode);
                     const titleField = document.getElementById("ctrl_pageTitle");
                     const descField = document.getElementById("ctrl_description");
-                    
+
                     btn.disabled = true;
-                    
+
                     console.log("🪄 Lets do some AI Magic 🪄");
-                    
+
                     fetchPromise.then(response => {
                         return response.json();
                     }).then(content => {
@@ -52,6 +52,11 @@ class tl_news_gptbundle extends Contao\Backend {
                         }
                         btn.disabled = false;
                         console.log("MAGIC 🪄🎩");
+                    }).catch(error => {
+                        let tooltip = document.createElement("p");
+                        tooltip.innerHTML = error;
+                        tooltip.classList.add("tl_help", "tl_tip");
+                        btn.parentNode.appendChild(tooltip);
                     });
                 }
             </script>
