@@ -10,6 +10,7 @@ $GLOBALS["TL_LANG"][$strTable] = [
     "gpt_custom_fields"     => ["Custom fields","Select additional table fields. IMPORTANT: Serialized content is not yet supported."],
     "gpt_token"             => ["OpenAI Token","Enter the token here - <a href='https://platform.openai.com/account/api-keys' target='_blank' style='font-weight:bold;'>Generate tokens here</a>"],
     "gpt_endpoint"          => ["GPT Model"],
+    "gpt_allowed_tables"    => ["Allowed tables"],
     "gpt_model_chat"        => ["GPT Chat completion Model","Take a look at the models and their functions at <a href='https://platform.openai.com/playground?mode=chat' target='_blank' style='font-weight:bold;'>Playground</a>."],
     "gpt_model_complete"    => ["GPT Completion Model","Take a look at the models and their functions at <a href='https://platform.openai.com/playground?mode=complete' target='_blank' style='font-weight:bold;'>Playground</a>."],
     "gpt_title_prompt"      => ["SEO-Title prompt","Enter the prompt for title generation here."],

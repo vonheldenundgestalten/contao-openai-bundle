@@ -3,6 +3,7 @@
 namespace Codebuster\GptBundle\Controller;
 
 use Config;
+use Exception;
 use Contao\BackendUser;
 use Contao\System;
 use Codebuster\GptBundle\Classes\GptClass;
@@ -29,7 +30,8 @@ class GptController
 
         $strMode = \Input::get('mode');
         $intPage = \Input::get('id');
-        $strContent = GptClass::prepareContent($intPage);
+        $table = \Input::get('table');
+        $strContent = GptClass::getContent($table, $intPage);
 
         $response = $this->doRequest($strMode,$strContent);
 
@@ -100,7 +102,7 @@ class GptController
             $content = json_decode($response);
             
             if($content->error->type === "insufficient_quota") {
-                return false;
+                throw new Exception("Insufficient Quota.");
             }
 
             if($endpoint == 'Complete') {

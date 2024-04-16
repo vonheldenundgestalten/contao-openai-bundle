@@ -27,7 +27,7 @@ class tl_page_gptbundle extends Contao\Backend {
             <script>
                 function generateSeo(btn,id,mode) {
                     
-                    const fetchPromise = fetch("/_gpt?id="+id+"&mode="+mode);
+                    const fetchPromise = fetch("/_gpt?id="+id+"&mode="+mode+"&table=tl_page");
                     const titleField = document.getElementById("ctrl_pageTitle");
                     const descField = document.getElementById("ctrl_description");
                     

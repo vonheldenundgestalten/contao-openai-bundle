@@ -18,7 +18,7 @@ $GLOBALS['TL_DCA'][$strTable] = [
         'default' => '
             {config_legend},gpt_token;
             {gptseo_legend},gpt_endpoint,gpt_model_chat,gpt_model_complete,gpt_title_prompt,gpt_desc_prompt,gpt_temp,gpt_max_tokens;
-            {contao_legend},gpt_hidden_elements,gpt_custom_fields;'
+            {contao_legend},gpt_hidden_elements,gpt_custom_fields;gpt_allowed_tables'
     ],
     //Fields
     'fields' => [
@@ -76,6 +76,12 @@ $GLOBALS['TL_DCA'][$strTable] = [
             'inputType' => 'select',
             'options_callback' => [$strTable,'getContentFields'],
             'eval' => ['multiple' => true, 'chosen'=> true, 'tl_class' => 'w50']
+        ],
+        'gpt_allowed_tables' => [
+            'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_allowed_tables'],
+            'inputType'               => 'select',
+            'options_callback'        => array('tl_gpt_config', 'getTables'),
+            'eval'                    => array('chosen'=>true, 'multiple'=>true, 'tl_class'=>'w100')
         ]
     ]
 ];
@@ -101,5 +107,21 @@ class tl_gpt_config extends Contao\Backend {
         unset($arrOptions["ptable"]);
 
         return $arrOptions;
+    }
+
+    /**
+     * @param \Contao\DataContainer $dc
+     * @return array
+     */
+    public function getTables($dc)
+    {
+        $groups = array();
+
+        foreach ($GLOBALS['TL_MODELS'] as $k => $v)
+        {
+            $groups[] = $k;
+        }
+
+        return $groups;
     }
 }

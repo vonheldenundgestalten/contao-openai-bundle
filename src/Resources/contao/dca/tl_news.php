@@ -28,9 +28,12 @@ class tl_news_gptbundle extends Contao\Backend {
     public function generateButton(\Contao\DataContainer $dc) {
         $strContent = '
             <script>
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                const table = urlParams.get("table");
                 function generateSeo(btn,id,mode) {
                                 
-                    const fetchPromise = fetch("/_gpt?id="+id+"&mode="+mode);
+                    const fetchPromise = fetch("/_gpt?id="+id+"&mode="+mode+"&table="+table);
                     const titleField = document.getElementById("ctrl_pageTitle");
                     const descField = document.getElementById("ctrl_description");
 
