@@ -9,6 +9,18 @@
             "email": "chris@code-buster.de",
             "homepage": "https://www.code-buster.de",
             "role": "Project leader"
+        },
+        {
+            "name": "Jannis Jirschik",
+            "email": "jj@vonheldenundgestalten.de",
+            "homepage": "https://www.vonheldenundgestalten.de",
+            "role": "Developer"
+        },
+        {
+            "name": "Markus Milkereit",
+            "email": "mm@vonheldenundgestalten.de",
+            "homepage": "https://www.vonheldenundgestalten.de",
+            "role": "Developer"
         }
     ],
     "keywords": [
