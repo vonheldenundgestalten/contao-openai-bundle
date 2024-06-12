@@ -26,6 +26,11 @@ or through the Contao Manager interface.
 - There is a fee to use the OpenAI API. An overview of OpenAI pricing can be found here: [https://openai.com/pricing](https://openai.com/pricing)
 - We tested a lot and so far we haven't gotten more than $5 a month
 
+## TinyMCE Plugin notes
+![](docs/tinymce.png)
+
+Please make sure you don't have a custom be_tinyMCE.html5 template. If so, take a look at src/Resources/contao/templates/be_tinyMCE.html5 and adjust the relevant places manually.
+
 ## Screenshots
 
 ![](docs/preview.png)
@@ -59,9 +64,20 @@ For the description:
 
 ## To-Do
 
-- [ ] Extend to other dynamic page types like Events and FAQs
-- [ ] Include a manual how to use for Third-Party extensions
+- [ ] Integrate token calculator (e.g. [GPT-3-Encoder-PHP](https://github.com/CodeRevolutionPlugins/GPT-3-Encoder-PHP))
+- [ ] Content weighting through ChatGPT as pre-fetch event
+- [ ] Define personality profile (role) for Chat completions API model
+- [ ] Considerations and testing for the actual maximum character length for the request
+- [ ] Considerations on how serialized content will be handled in the future
+- [ ] Make costs per Request more transparent (show used tokens and calculate with OpenAI pricing)
+- [ ] do
+- [ ] some
+- [ ] [magic🪄](https://media.tenor.com/IOEsG9ldvhAAAAAd/mr-bean.gif)
 
+## new Features
+- v0.2.0 -> TinyMCE AI-Text generation Dialog
+- v1.0.0 -> add Contao 5 compatibility 
+- v1.1.0 -> Contao Backend Help Bot powered by CustomGPT
 
 ## Support
 Contao OpenAI Bundle is a project for the community. Please consider giving feedback or creating pull requests to support the ongoing development.
