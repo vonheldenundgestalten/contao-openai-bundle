@@ -52,6 +52,12 @@ class GptClass {
      * @throws Exception If content isn't found
      */
    public static function getContent($table, $id) {
+
+        //gets correct article of page
+        if($table == 'tl_page') {
+            $id = ArticleModel::findByPid($id)->id;
+        }
+
         return self::prepareContent(self::getArticle($table, $id));
    }
 
