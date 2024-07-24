@@ -2,7 +2,7 @@
 
 namespace Codebuster\GptBundle\Classes;
 
-use Config;
+use Contao\Config;
 use Exception;
 use Contao\ArticleModel;
 use Contao\StringUtil;
@@ -11,12 +11,12 @@ use Contao\ContentModel;
 use Codebuster\GptBundle\Models\ContentElementsModel;
 
 class GptClass {
-    protected static function prepareContent($objArticles): string
+    private static function prepareContent($objArticles): string
     {
         $strContent = '';
         $customFields = [];
-        if(\Config::get("gpt_custom_fields")) {
-            $customFields = unserialize(\Config::get("gpt_custom_fields"));
+        if(Config::get("gpt_custom_fields")) {
+            $customFields = unserialize(Config::get("gpt_custom_fields"));
         }
 
         // get Content from all Articles
@@ -39,6 +39,7 @@ class GptClass {
 
             }
         }
+
         // Todo: do max chars even smarter
         return $strContent;
     }
@@ -93,7 +94,7 @@ class GptClass {
         if(\Contao\Database::getInstance()->tableExists($table) && self::isValidTable($table)) {
 
             $blnHidden = false;
-            if(\Config::get("gpt_hidden_elements") === true) {
+            if(Config::get("gpt_hidden_elements") === true) {
                 $blnHidden = true;
             }
 

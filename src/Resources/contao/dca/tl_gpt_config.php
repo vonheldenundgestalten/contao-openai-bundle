@@ -5,13 +5,15 @@
  */
 
 use Codebuster\GptBundle\Models\ContentElementsModel;
+use Contao\DC_File;
+use Contao\Database;
 
 $strTable = 'tl_gpt_config';
 
 $GLOBALS['TL_DCA'][$strTable] = [
 //Config
     'config' => [
-        'dataContainer' => 'File'
+        'dataContainer' => "\Contao\DC_File"
     ],
     //Palettes
     'palettes' => [
