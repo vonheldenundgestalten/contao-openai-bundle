@@ -12,6 +12,11 @@ composer require vonheldenundgestalten/contao-openai-bundle
 ```
 or through the Contao Manager interface.
 
+Add this to the .htaccess of a project
+```
+RewriteCond %{REQUEST_URI} !^/_gpt*
+```
+
 ## Compability
 
 | Contao Version | PHP Version |
