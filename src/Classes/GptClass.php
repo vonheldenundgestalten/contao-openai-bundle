@@ -2,7 +2,7 @@
 
 namespace Codebuster\GptBundle\Classes;
 
-use Config;
+use Contao\Config;
 use Exception;
 use Contao\ArticleModel;
 use Contao\StringUtil;
@@ -11,12 +11,12 @@ use Contao\ContentModel;
 use Codebuster\GptBundle\Models\ContentElementsModel;
 
 class GptClass {
-    protected static function prepareContent($objArticles): string
+    private static function prepareContent($objArticles): string
     {
         $strContent = '';
         $customFields = [];
-        if(\Config::get("gpt_custom_fields")) {
-            $customFields = unserialize(\Config::get("gpt_custom_fields"));
+        if(Config::get("gpt_custom_fields")) {
+            $customFields = unserialize(Config::get("gpt_custom_fields"));
         }
 
         // get Content from all Articles
@@ -39,6 +39,7 @@ class GptClass {
 
             }
         }
+
         // Todo: do max chars even smarter
         return $strContent;
     }
@@ -51,7 +52,7 @@ class GptClass {
      * @return Object
      * @throws Exception If content isn't found
      */
-   public static function getContent($table, $id) {
+   public static function getContent($table, $id): string {
 
         //gets correct article of page
         if($table == 'tl_page') {
@@ -93,16 +94,24 @@ class GptClass {
         if(\Contao\Database::getInstance()->tableExists($table) && self::isValidTable($table)) {
 
             $blnHidden = false;
-            if(\Config::get("gpt_hidden_elements") === true) {
+            if(Config::get("gpt_hidden_elements") === true) {
                 $blnHidden = true;
             }
 
             //is record valid?
             $record = $GLOBALS['TL_MODELS'][$table]::findBy(["id=?","published=?"], [$id, $blnHidden ? 0 : 1]);
+            
+            // Try to find in article
+            if(!$record){
+                $table = "tl_article";
+                $record = $GLOBALS['TL_MODELS'][$table]::findBy(["id=?","published=?"], [$id, $blnHidden ? 0 : 1]);
+            }
 
             if($record) {
                 // get contentelements from article
                 $objArticles = ContentModel::findBy("pid", $id);
+
+
                 return $objArticles;
                 
             } else {

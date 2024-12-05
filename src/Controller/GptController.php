@@ -2,7 +2,7 @@
 
 namespace Codebuster\GptBundle\Controller;
 
-use Config;
+use Contao\Config;
 use Exception;
 use Contao\BackendUser;
 use Contao\System;
@@ -30,11 +30,12 @@ class GptController
             return new Response('Bad Request', Response::HTTP_BAD_REQUEST);
         }
 
-        $strMode = \Input::get('mode');
+        $strMode = Input::get('mode');
 
-        if(\Input::get('id')) {
-            $intPage = \Input::get('id');
-            $strContent = GptClass::prepareContent($intPage);
+        if(Input::get('id')) {
+            $intPage = Input::get('id');
+            $strTable = Input::get('table');
+            $strContent = GptClass::getContent($strTable, $intPage);
         }
 
         $response = $this->doRequest($strMode,$strContent);
@@ -51,6 +52,7 @@ class GptController
         $token = Config::get('gpt_token');
         $endpoint = Config::get('gpt_endpoint');
 
+
         if($token) {
 
             if($mode == 'title') {
@@ -59,6 +61,10 @@ class GptController
                 $strPrompt = Config::get('gpt_desc_prompt');
             } else if($mode == 'tinymce') {
                 $strPrompt = Input::get('prompt');
+            }
+
+            if(!$strPrompt){
+                return 'Please define prompt in OpenAI settings';
             }
 
             if($endpoint == 'Complete') {
@@ -106,12 +112,13 @@ class GptController
             curl_close($curl);
 
             $content = json_decode($response);
+
             
-            if($content->error->type === "insufficient_quota") {
+            if(isset($content->error) && $content->error->type === "insufficient_quota") {
                 throw new Exception("Insufficient Quota.");
             }
 
-            if($content->error) {
+            if(isset($content->error) && $content->error) {
                 $arrReturn = [
                     "content" => $content->error->message,
                     "success" => false
@@ -119,6 +126,9 @@ class GptController
             } else {
                 if($endpoint == 'Complete') {
                     $strReturn = $content->choices[0]->text;
+                    if(!$strReturn){
+                        return "Something went wrong, pls try again...";
+                    }
 
                 } else if($endpoint == 'Chat') {
                     $strReturn = $content->choices[0]->message->content;
@@ -133,6 +143,12 @@ class GptController
             $strReturn = json_encode($arrReturn);
         }
 
+        
+
+
+
         return $strReturn;
     }
+
+
 }
