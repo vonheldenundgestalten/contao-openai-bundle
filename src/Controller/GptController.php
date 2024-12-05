@@ -52,6 +52,7 @@ class GptController
         $token = Config::get('gpt_token');
         $endpoint = Config::get('gpt_endpoint');
 
+
         if($token) {
 
             if($mode == 'title') {
@@ -60,6 +61,10 @@ class GptController
                 $strPrompt = Config::get('gpt_desc_prompt');
             } else if($mode == 'tinymce') {
                 $strPrompt = Input::get('prompt');
+            }
+
+            if(!$strPrompt){
+                return 'Please define prompt in OpenAI settings';
             }
 
             if($endpoint == 'Complete') {
@@ -103,10 +108,16 @@ class GptController
                 ),
             ));
 
+
+            //var_dump($arrPost);exit;
+
+            
+
             $response = curl_exec($curl);
             curl_close($curl);
 
             $content = json_decode($response);
+
             
             if(isset($content->error) && $content->error->type === "insufficient_quota") {
                 throw new Exception("Insufficient Quota.");
@@ -120,6 +131,9 @@ class GptController
             } else {
                 if($endpoint == 'Complete') {
                     $strReturn = $content->choices[0]->text;
+                    if(!$strReturn){
+                        return "Something went wrong, pls try again...";
+                    }
 
                 } else if($endpoint == 'Chat') {
                     $strReturn = $content->choices[0]->message->content;
@@ -134,6 +148,12 @@ class GptController
             $strReturn = json_encode($arrReturn);
         }
 
+        
+
+
+
         return $strReturn;
     }
+
+
 }
