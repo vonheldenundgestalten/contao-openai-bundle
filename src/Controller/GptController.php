@@ -38,6 +38,8 @@ class GptController
             $strContent = GptClass::getContent($strTable, $intPage);
         }
 
+
+
         $response = $this->doRequest($strMode,$strContent);
 
         return new Response($response,Response::HTTP_OK);
@@ -90,6 +92,7 @@ class GptController
                 ];
             }
 
+
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
@@ -107,11 +110,6 @@ class GptController
                     "Authorization: Bearer $token"
                 ),
             ));
-
-
-            //var_dump($arrPost);exit;
-
-            
 
             $response = curl_exec($curl);
             curl_close($curl);
@@ -138,6 +136,8 @@ class GptController
                 } else if($endpoint == 'Chat') {
                     $strReturn = $content->choices[0]->message->content;
                 }
+                
+                $strReturn = ltrim($strReturn, ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'); 
 
                 $arrReturn = [
                     "content" => str_replace('"','',trim(preg_replace('/\s+/', ' ', $strReturn))),
