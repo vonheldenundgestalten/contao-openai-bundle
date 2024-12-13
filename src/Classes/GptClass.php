@@ -23,23 +23,30 @@ class GptClass
         if ($objArticles !== null) {
             foreach ($objArticles as $article) {
 
-                $headline = unserialize(strip_tags(nl2br($article->headline)));
-                if ($headline["value"]) {
-                    $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $headline["value"]))) . ' - ';
-                }
-                $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $article->text)));
+                foreach ($article as $contentElement) {
 
-                if (!empty($customFields)) {
-                    foreach ($customFields as $customField) {
-                        // dont regard serialized content
-                        if (!is_array(unserialize($article->$customField))) {
-                            $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $article->$customField)));
+                    if ($contentElement->type != "module") {
+
+                        $headline = unserialize(strip_tags(nl2br($contentElement->headline)));
+                        if ($headline["value"]) {
+                            $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $headline["value"]))) . ' - ';
+                        }
+                        $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->text)));
+
+                        if (!empty($customFields)) {
+                            foreach ($customFields as $customField) {
+                                // dont regard serialized content
+                                if (!is_array(unserialize($contentElement->$customField))) {
+                                    $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->$customField)));
+                                }
+                            }
                         }
                     }
                 }
-
             }
         }
+
+
         // Todo: do max chars even smarter
         return $strContent;
     }
