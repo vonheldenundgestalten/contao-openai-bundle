@@ -19,6 +19,7 @@ class GptClass
         if (Config::get("gpt_custom_fields")) {
             $customFields = unserialize(Config::get("gpt_custom_fields"));
         }
+
         // get Content from all Articles
         if ($objArticles !== null) {
             foreach ($objArticles as $article) {
@@ -62,7 +63,6 @@ class GptClass
     public static function getContent($table, $id): string
     {
 
-
         //gets correct article of page
         if ($table == 'tl_page') {
             $articles = ArticleModel::findByPid($id);
@@ -74,6 +74,9 @@ class GptClass
             $table = "tl_article";
         }
 
+        if(empty($ids)){
+            $ids[] = $id; 
+        }
 
         return self::prepareContent(self::getArticle($table, $ids));
     }
@@ -107,6 +110,7 @@ class GptClass
      */
     public static function getArticle(string $table, array $ids)
     {
+        
 
         //is table valid?
         if (\Contao\Database::getInstance()->tableExists($table) && self::isValidTable($table)) {
@@ -117,6 +121,7 @@ class GptClass
                 $blnHidden = true;
 
             }
+
             $objArticles = [];
             foreach ($ids as $id) {
                 //is record valid?
