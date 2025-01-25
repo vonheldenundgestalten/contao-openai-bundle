@@ -61,19 +61,18 @@ class GptClass
      */
     public static function getContent($table, $id): string
     {
-
-
         //gets correct article of page
         if ($table == 'tl_page') {
             $articles = ArticleModel::findByPid($id);
-            $ids = [];
+            
             foreach ($articles as $v) {
                 $ids[] = $v->id;
             }
 
             $table = "tl_article";
+        } else {
+            $ids = [$id];
         }
-
 
         return self::prepareContent(self::getArticle($table, $ids));
     }
