@@ -19,6 +19,7 @@ class GptClass
         if (Config::get("gpt_custom_fields")) {
             $customFields = unserialize(Config::get("gpt_custom_fields"));
         }
+
         // get Content from all Articles
         if ($objArticles !== null) {
             foreach ($objArticles as $article) {
@@ -45,7 +46,6 @@ class GptClass
                 }
             }
         }
-
 
         // Todo: do max chars even smarter
         return $strContent;
@@ -106,21 +106,18 @@ class GptClass
      */
     public static function getArticle(string $table, array $ids)
     {
-
         //is table valid?
         if (\Contao\Database::getInstance()->tableExists($table) && self::isValidTable($table)) {
-
 
             $blnHidden = false;
             if (Config::get("gpt_hidden_elements") === true) {
                 $blnHidden = true;
-
             }
             $objArticles = [];
             foreach ($ids as $id) {
                 //is record valid?
                 $record = $GLOBALS['TL_MODELS'][$table]::findBy(["id=?", "published=?"], [$id, $blnHidden ? 0 : 1]);
-
+                
                 if ($record) {
                     // get contentelements from article
                     $objArticles[] = ContentModel::findBy(["pid=?", 'ptable=?'], [$id, $table]);
@@ -129,9 +126,7 @@ class GptClass
                 }
             }
 
-
             return $objArticles;
-
         } else {
             throw new Exception("Table not found. Check $table exists and has been approved in the settings.");
         }
