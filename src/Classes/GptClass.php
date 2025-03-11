@@ -26,40 +26,39 @@ class GptClass
         // get Content from all Articles
         if ($objArticles !== null) {
             foreach ($objArticles as $article) {
+                if(!$article->invisible){
+                    foreach ($article as $contentElement) {
 
-                foreach ($article as $contentElement) {
+                        // Load all palettes
+                        Controller::loadDataContainer('tl_content');
 
+                        if ($contentElement->type != "module") {
 
+                            $pallete = $GLOBALS['TL_DCA']['tl_content']['palettes'][$contentElement->type];
 
-                    // Load all palettes
-                    Controller::loadDataContainer('tl_content');
-
-                    if ($contentElement->type != "module") {
-
-                        $pallete = $GLOBALS['TL_DCA']['tl_content']['palettes'][$contentElement->type];
-
-                        if (self::findFieldInPallete($pallete, 'headline')) {
-                            $headline = unserialize(strip_tags(nl2br($contentElement->headline)));
-                            if ($headline["value"]) {
-                                $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $headline["value"]))) . ' - ';
+                            if (self::findFieldInPallete($pallete, 'headline')) {
+                                $headline = unserialize(strip_tags(nl2br($contentElement->headline)));
+                                if ($headline["value"]) {
+                                    $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $headline["value"]))) . ' - ';
+                                }
                             }
-                        }
 
-                        if (self::findFieldInPallete($pallete, 'text')) {
-                            $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->text)));
-                        }
+                            if (self::findFieldInPallete($pallete, 'text')) {
+                                $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->text)));
+                            }
 
-                        if (!empty($customFields)) {
-                            foreach ($customFields as $customField) {
-                                // dont regard serialized content
-                                if (self::findFieldInPallete($pallete, $customField)) {
-                                    if (!is_array(unserialize($contentElement->$customField))) {
-                                        $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->$customField)));
+                            if (!empty($customFields)) {
+                                foreach ($customFields as $customField) {
+                                    // dont regard serialized content
+                                    if (self::findFieldInPallete($pallete, $customField)) {
+                                        if (!is_array(unserialize($contentElement->$customField))) {
+                                            $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->$customField)));
+                                        }
                                     }
                                 }
                             }
+                            
                         }
-                        
                     }
                 }
             }
@@ -142,15 +141,13 @@ class GptClass
 
             $objArticles = [];
             foreach ($ids as $id) {
-                //is record valid?
+
                 $record = $GLOBALS['TL_MODELS'][$table]::findBy(["id=?", "published=?"], [$id, $blnHidden ? 0 : 1]);
 
                 if ($record) {
                     // get contentelements from article
                     $objArticles[] = ContentModel::findBy(["pid=?", 'ptable=?'], [$id, $table]);
-                } else {
-                    throw new Exception("Record with ID $id not found.");
-                }
+                } 
             }
 
 
