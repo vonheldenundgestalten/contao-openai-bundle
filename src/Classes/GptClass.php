@@ -9,6 +9,9 @@ use Contao\StringUtil;
 use Contao\Database;
 use Contao\ContentModel;
 use Codebuster\GptBundle\Models\ContentElementsModel;
+use Contao\Controller;
+
+
 
 class GptClass
 {
@@ -26,22 +29,37 @@ class GptClass
 
                 foreach ($article as $contentElement) {
 
+
+
+                    // Load all palettes
+                    Controller::loadDataContainer('tl_content');
+
                     if ($contentElement->type != "module") {
 
-                        $headline = unserialize(strip_tags(nl2br($contentElement->headline)));
-                        if ($headline["value"]) {
-                            $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $headline["value"]))) . ' - ';
+                        $pallete = $GLOBALS['TL_DCA']['tl_content']['palettes'][$contentElement->type];
+
+                        if (self::findFieldInPallete($pallete, 'headline')) {
+                            $headline = unserialize(strip_tags(nl2br($contentElement->headline)));
+                            if ($headline["value"]) {
+                                $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $headline["value"]))) . ' - ';
+                            }
                         }
-                        $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->text)));
+
+                        if (self::findFieldInPallete($pallete, 'text')) {
+                            $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->text)));
+                        }
 
                         if (!empty($customFields)) {
                             foreach ($customFields as $customField) {
                                 // dont regard serialized content
-                                if (!is_array(unserialize($contentElement->$customField))) {
-                                    $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->$customField)));
+                                if (self::findFieldInPallete($pallete, $customField)) {
+                                    if (!is_array(unserialize($contentElement->$customField))) {
+                                        $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->$customField)));
+                                    }
                                 }
                             }
                         }
+                        
                     }
                 }
             }
@@ -74,8 +92,8 @@ class GptClass
             $table = "tl_article";
         }
 
-        if(empty($ids)){
-            $ids[] = $id; 
+        if (empty($ids)) {
+            $ids[] = $id;
         }
 
         return self::prepareContent(self::getArticle($table, $ids));
@@ -110,7 +128,7 @@ class GptClass
      */
     public static function getArticle(string $table, array $ids)
     {
-        
+
 
         //is table valid?
         if (\Contao\Database::getInstance()->tableExists($table) && self::isValidTable($table)) {
@@ -141,5 +159,16 @@ class GptClass
         } else {
             throw new Exception("Table not found. Check $table exists and has been approved in the settings.");
         }
+    }
+
+    /**
+     * Find specific field in palette, so we don't send data that is not displayed in frontend.
+     * @param string $pallete
+     * @param string $field
+     * @return bool
+     */
+    private static function findFieldInPallete(string $pallete, string $field): bool
+    {
+        return (bool) preg_match('/\b' . preg_quote($field, '/') . '\b/', $pallete);
     }
 }
