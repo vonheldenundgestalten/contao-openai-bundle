@@ -26,7 +26,6 @@ class GptClass
         // get Content from all Articles
         if ($objArticles !== null) {
             foreach ($objArticles as $article) {
-                if(!$article->invisible){
                     foreach ($article as $contentElement) {
 
                         // Load all palettes
@@ -60,7 +59,7 @@ class GptClass
                             
                         }
                     }
-                }
+                
             }
         }
 
