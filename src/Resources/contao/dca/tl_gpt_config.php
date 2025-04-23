@@ -36,7 +36,7 @@ $GLOBALS['TL_DCA'][$strTable] = [
         'gpt_model_chat' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_model_chat'],
             'inputType' => 'select',
-            'options' => ['gpt-3.5-turbo', 'gpt-4'],
+            'options' => ['gpt-3.5-turbo', 'gpt-4','gpt-4.1'],
             'eval' => ['multiple' => false, 'tl_class' => 'clr w50']
         ],
         'gpt_model_complete' => [
