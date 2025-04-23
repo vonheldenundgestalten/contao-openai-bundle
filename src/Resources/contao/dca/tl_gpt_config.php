@@ -13,7 +13,7 @@ $strTable = 'tl_gpt_config';
 $GLOBALS['TL_DCA'][$strTable] = [
 //Config
     'config' => [
-        'dataContainer' => "\Contao\DC_File"
+        'dataContainer' => \Contao\DC_File::class
     ],
     //Palettes
     'palettes' => [

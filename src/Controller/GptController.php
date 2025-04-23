@@ -135,12 +135,15 @@ class GptController
 
                 } else if($endpoint == 'Chat') {
                     $strReturn = $content->choices[0]->message->content;
+                    if(!$strReturn){
+                        return "Something went wrong, pls try again...";
+                    }
                 }
                 
                 $strReturn = ltrim($strReturn, ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'); 
 
                 $arrReturn = [
-                    "content" => str_replace('"','',trim(preg_replace('/\s+/', ' ', $strReturn))),
+                    "content" => str_replace(['"','*'],'',trim(preg_replace('/\s+/', ' ', $strReturn))),
                     "success" => true
                 ];
             }
