@@ -140,7 +140,7 @@ class GptController
                 $strReturn = ltrim($strReturn, ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'); 
 
                 $arrReturn = [
-                    "content" => str_replace('"','',trim(preg_replace('/\s+/', ' ', $strReturn))),
+                    "content" => str_replace(['"','*'],'',trim(preg_replace('/\s+/', ' ', $strReturn))),
                     "success" => true
                 ];
             }
