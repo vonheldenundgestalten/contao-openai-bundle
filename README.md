@@ -4,6 +4,10 @@ The purpose of this extension is to quickly and easily generate meta description
 
 In the screenshot below you can see some settings to get you started with relatively good results.
 
+```
+This extension is also available for Contao 5.3+. See the 5.3 branch.
+```
+
 ## Getting started
 
 Install by hand / command line with
