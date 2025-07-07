@@ -21,7 +21,7 @@ RewriteCond %{REQUEST_URI} !^/_gpt*
 
 | Contao Version | PHP Version |
 |----------------|-------------|
-| \>= 4.9        | ^7.0 ǀǀ ^8.0 |
+| ^5.3       | ^8.0 |
 
 
 ## Important note
