@@ -77,19 +77,33 @@ class GptController
                     "max_tokens" => Config::get('gpt_max_tokens'),
                     "temperature" => Config::get('gpt_temp')
                 ];
-            } else if($endpoint == 'Chat') {
+            } elseif ($endpoint == 'Chat') {
                 $strUrl = 'https://api.openai.com/v1/chat/completions';
-                $arrPost = [
-                    "model" => Config::get('gpt_model_chat'),
-                    "messages" => [
-                        [
-                            "role" => "system",
-                            "content" => $strPrompt . " " . $content,
-                        ]
-                    ],
-                    "max_tokens" => Config::get('gpt_max_tokens'),
-                    "temperature" => Config::get('gpt_temp')
-                ];
+
+                if (Config::get('gpt_model_chat') === 'gpt-5' || Config::get('gpt_model_chat') === 'gpt-5-mini') {
+                    $arrPost = [
+                        "model" => Config::get('gpt_model_chat'),
+                        "messages" => [
+                            [
+                                "role" => "system",
+                                "content" => $strPrompt . " " . $content,
+                            ]
+                        ],
+                        "max_completion_tokens" => Config::get('gpt_max_tokens')
+                    ];
+                } else {
+                    $arrPost = [
+                        "model" => Config::get('gpt_model_chat'),
+                        "messages" => [
+                            [
+                                "role" => "system",
+                                "content" => $strPrompt . " " . $content,
+                            ]
+                        ],
+                        "max_tokens" => Config::get('gpt_max_tokens'),
+                        "temperature" => Config::get('gpt_temp')
+                    ];
+                }
             }
 
 
