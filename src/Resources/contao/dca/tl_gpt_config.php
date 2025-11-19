@@ -36,7 +36,7 @@ $GLOBALS['TL_DCA'][$strTable] = [
         'gpt_model_chat' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_model_chat'],
             'inputType' => 'select',
-            'options' => ['gpt-3.5-turbo', 'gpt-4','gpt-4o','gpt-4.1','gpt-4.1-mini','gpt-4o-mini'],
+            'options' => ['gpt-3.5-turbo', 'gpt-4','gpt-4o','gpt-4.1','gpt-4.1-mini','gpt-4o-mini','gpt-5-mini','gpt-5'],
             'eval' => ['multiple' => false, 'tl_class' => 'clr w50']
         ],
         'gpt_model_complete' => [
@@ -44,7 +44,7 @@ $GLOBALS['TL_DCA'][$strTable] = [
             'inputType' => 'select',
             'options' => ['gpt-3.5-turbo-instruct'],
             'eval' => ['multiple' => false, 'tl_class' => 'w50']
-        ],
+        ], 
         'gpt_title_prompt' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_title_prompt'],
             'inputType' => 'textarea',
