@@ -46,7 +46,7 @@ $GLOBALS['TL_DCA'][$strTable] = [
             'inputType' => 'select',
             'options' => ['gpt-3.5-turbo-instruct'],
             'eval' => ['multiple' => false, 'tl_class' => 'w50']
-        ],
+        ], 
         'gpt_title_prompt' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_title_prompt'],
             'inputType' => 'textarea',
