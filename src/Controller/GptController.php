@@ -29,7 +29,7 @@ class GptController
 
         $strMode = Input::get('mode');
 
-        if(Input::get('id')) {
+        if (Input::get('id')) {
             $intPage = Input::get('id');
             $strTable = Input::get('table');
             $strContent = GptClass::getContent($strTable, $intPage);
@@ -37,12 +37,13 @@ class GptController
 
 
 
-        $response = $this->doRequest($strMode,$strContent);
+        $response = $this->doRequest($strMode, $strContent);
 
-        return new Response($response,Response::HTTP_OK);
+        return new Response($response, Response::HTTP_OK);
     }
 
-    private function doRequest(string $mode, string $content): string {
+    private function doRequest(string $mode, string $content): string
+    {
 
         $strReturn = "";
         $arrReturn = [];
@@ -52,25 +53,25 @@ class GptController
         $endpoint = Config::get('gpt_endpoint');
 
 
-        if($token) {
+        if ($token) {
 
-            if($mode == 'title') {
+            if ($mode == 'title') {
                 $strPrompt = Config::get('gpt_title_prompt');
-            } else if($mode == 'description') {
+            } else if ($mode == 'description') {
                 $strPrompt = Config::get('gpt_desc_prompt');
-            } else if($mode == 'tinymce') {
+            } else if ($mode == 'tinymce') {
                 $strPrompt = Input::get('prompt');
             }
 
-            if(!$strPrompt){
+            if (!$strPrompt) {
                 return 'Please define prompt in OpenAI settings';
             }
 
-            if($endpoint == 'Complete') {
+            if ($endpoint == 'Complete') {
                 $strUrl = 'https://api.openai.com/v1/completions';
                 $arrPost = [
                     "model" => Config::get('gpt_model_complete'),
-                    "prompt" => $strPrompt." ".$content,
+                    "prompt" => $strPrompt . " " . $content,
                     "max_tokens" => Config::get('gpt_max_tokens'),
                     "temperature" => Config::get('gpt_temp')
                 ];
@@ -123,35 +124,39 @@ class GptController
             ));
 
             $response = curl_exec($curl);
+
             curl_close($curl);
 
             $content = json_decode($response);
-
-            
-            if(isset($content->error) && $content->error->type === "insufficient_quota") {
+            if (isset($content->error) && $content->error->type === "insufficient_quota") {
                 throw new Exception("Insufficient Quota.");
             }
 
-            if(isset($content->error) && $content->error) {
+            if (isset($content->error) && $content->error) {
                 $arrReturn = [
                     "content" => $content->error->message,
                     "success" => false
                 ];
             } else {
-                if($endpoint == 'Complete') {
+                if ($endpoint == 'Complete') {
                     $strReturn = $content->choices[0]->text;
-                    if(!$strReturn){
+                    if (!$strReturn) {
                         return "Something went wrong, pls try again...";
                     }
 
-                } else if($endpoint == 'Chat') {
+                } else if ($endpoint == 'Chat') {
                     $strReturn = $content->choices[0]->message->content;
+                    if (!$strReturn) {
+                        return "Something went wrong, pls try again...";
+                    }
                 }
                 
                 $strReturn = ltrim($strReturn, ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'); 
 
+                $strReturn = ltrim($strReturn, ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~');
+
                 $arrReturn = [
-                    "content" => str_replace(['"','*'],'',trim(preg_replace('/\s+/', ' ', $strReturn))),
+                    "content" => str_replace(['"', '*'], '', trim(preg_replace('/\s+/', ' ', $strReturn))),
                     "success" => true
                 ];
             }
@@ -159,7 +164,7 @@ class GptController
             $strReturn = json_encode($arrReturn);
         }
 
-        
+
 
 
 
