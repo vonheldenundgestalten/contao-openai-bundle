@@ -10,14 +10,11 @@ use Contao\Input;
 use Codebuster\GptBundle\Classes\GptClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Terminal42\ServiceAnnotationBundle\Annotation\ServiceTag;
 use http\Client;
 
-/**
- * @Route("/_gpt", name=GptController::class, defaults={"_scope" = "backend", "_token_check" = true})
- * @ServiceTag("controller.service_arguments")
- */
+#[Route('/_gpt', name: GptController::class, defaults: ['_scope' => 'backend', '_token_check' => true])]
 class GptController
 {
     public function __invoke(Request $request): Response
