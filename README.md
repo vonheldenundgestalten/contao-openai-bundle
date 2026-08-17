@@ -58,14 +58,15 @@ If [`mvo/contao-group-widget`](https://github.com/m-vo/contao-group-widget) is i
 ![](docs/settings.png)
 
 - Define a usage limit in the OpenAI API dashboard to control costs.
-- english versions of the prompts would be:
+- English versions of the prompts are:
 
 For the title:
 > Write a concise page title consisting of 5 to 6 words for the following text:
->
+
 For the description:
 > Write an informative/emphatic/appealing page description for the following text that contains less than 160 characters including spaces:
->
+
+The output language is detected from the analyzed page content and enforced internally. Existing custom prompts do not need to include a language instruction.
 
 ## How to use
 
