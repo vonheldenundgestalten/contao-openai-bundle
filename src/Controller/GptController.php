@@ -186,11 +186,15 @@ class GptController
             return [['role' => 'user', 'content' => $prompt]];
         }
 
-        return [
-            ['role' => 'system', 'content' => $prompt],
-            ['role' => 'system', 'content' => self::SEO_LANGUAGE_INSTRUCTION],
-            ['role' => 'user', 'content' => "<page_content>\n" . $content . "\n</page_content>"],
-        ];
+        $messages = [['role' => 'system', 'content' => $prompt]];
+
+        if (stripos($prompt, 'MANDATORY OUTPUT LANGUAGE:') === false) {
+            $messages[] = ['role' => 'system', 'content' => self::SEO_LANGUAGE_INSTRUCTION];
+        }
+
+        $messages[] = ['role' => 'user', 'content' => "<page_content>\n" . $content . "\n</page_content>"];
+
+        return $messages;
     }
 
     private function getTemperature(): float
