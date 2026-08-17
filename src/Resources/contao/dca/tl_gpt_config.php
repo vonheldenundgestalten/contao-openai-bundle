@@ -4,7 +4,7 @@
  * File tl_gpt_config
  */
 
-use Codebuster\GptBundle\Models\ContentElementsModel;
+use Codebuster\GptBundle\Classes\GptClass;
 use Contao\DC_File;
 use Contao\Database;
 
@@ -99,16 +99,30 @@ class tl_gpt_config extends Contao\Backend {
         $arrOptions = [];
         $database = Database::getInstance();
         $fields = $database->listFields('tl_content');
+        $contentFieldTypes = [
+            'char',
+            'varchar',
+            'tinytext',
+            'text',
+            'mediumtext',
+            'longtext',
+            'tinyblob',
+            'blob',
+            'mediumblob',
+            'longblob',
+        ];
 
         foreach($fields AS $field) {
-            if(in_array($field["type"],['text','varchar','mediumtext'])) {
+            if (in_array(strtolower($field['type']), $contentFieldTypes, true)) {
                 $arrOptions[$field["name"]] = $field["name"];
             }
         }
 
         // remove default and unnecessary
-        unset($arrOptions["headline"]);
-        unset($arrOptions["text"]);
+        foreach (GptClass::CONTENT_FIELDS as $defaultField) {
+            unset($arrOptions[$defaultField]);
+        }
+
         unset($arrOptions["type"]);
         unset($arrOptions["ptable"]);
 
