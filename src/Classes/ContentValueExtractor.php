@@ -80,6 +80,10 @@ final class ContentValueExtractor
 
     private static function normalize(string $value): string
     {
+        if (!preg_match('//u', $value)) {
+            return '';
+        }
+
         $value = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $value = strip_tags($value);
         $value = preg_replace('/[\s\x{00A0}]+/u', ' ', $value)

@@ -7,6 +7,7 @@ use Contao\ArticleModel;
 use Contao\ContentModel;
 use Contao\Controller;
 use Contao\StringUtil;
+use Contao\System;
 use Exception;
 
 class GptClass
@@ -211,7 +212,24 @@ class GptClass
                         continue;
                     }
 
-                    $value = ContentValueExtractor::extract($contentElement->$field);
+                    $definition = $GLOBALS['TL_DCA']['tl_content']['fields'][$field] ?? [];
+                    $value = null;
+
+                    if (($definition['inputType'] ?? '') === 'group') {
+                        $container = System::getContainer();
+
+                        if ($container->has(GroupWidgetContentExtractor::class)) {
+                            $value = $container->get(GroupWidgetContentExtractor::class)->extract(
+                                'tl_content',
+                                $contentElementId,
+                                $field
+                            );
+                        }
+                    }
+
+                    if ($value === null) {
+                        $value = ContentValueExtractor::extract($contentElement->$field);
+                    }
 
                     if ($value !== '') {
                         $content[] = $value;

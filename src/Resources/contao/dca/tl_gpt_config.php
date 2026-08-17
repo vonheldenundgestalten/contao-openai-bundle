@@ -5,6 +5,7 @@
  */
 
 use Codebuster\GptBundle\Classes\GptClass;
+use Contao\Controller;
 use Contao\DC_File;
 use Contao\Database;
 
@@ -115,6 +116,14 @@ class tl_gpt_config extends Contao\Backend {
         foreach($fields AS $field) {
             if (in_array(strtolower($field['type']), $contentFieldTypes, true)) {
                 $arrOptions[$field["name"]] = $field["name"];
+            }
+        }
+
+        Controller::loadDataContainer('tl_content');
+
+        foreach ($GLOBALS['TL_DCA']['tl_content']['fields'] ?? [] as $fieldName => $definition) {
+            if (($definition['inputType'] ?? '') === 'group') {
+                $arrOptions[$fieldName] = $fieldName;
             }
         }
 

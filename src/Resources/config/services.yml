@@ -7,3 +7,8 @@ services:
 Codebuster\GptBundle\Controller\:
   resource: ../../../src/Controller
   public: true
+
+Codebuster\GptBundle\Classes\GroupWidgetContentExtractor:
+  arguments:
+    $registry: '@?Mvo\ContaoGroupWidget\Group\Registry'
+  public: true

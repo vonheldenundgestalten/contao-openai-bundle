@@ -51,6 +51,8 @@ GPT-5.6 Luna is optimized for cost-sensitive, high-volume workloads. GPT-5.6 Ter
 
 Headlines, rich text, HTML, code, lists, description lists, tables, accordion titles and bodies, captions, and other core descriptive fields are read automatically, including content elements nested inside accordions and element groups. Additional fields selected under **Custom fields** support plain values as well as nested PHP-serialized arrays; markup and structural headline metadata are removed before the page content is sent to OpenAI.
 
+If [`mvo/contao-group-widget`](https://github.com/m-vo/contao-group-widget) is installed, group fields are available under **Custom fields** and are read in their configured element and field order. Both the default serialized storage and entity storage are supported. The integration is optional; without the group widget, regular content extraction is unchanged.
+
 ## Best practice
 
 ![](docs/settings.png)
