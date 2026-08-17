@@ -7,7 +7,7 @@ $GLOBALS["TL_LANG"][$strTable] = [
     "contao_legend"         => "Contao Einstellungen",
     "gptseo_legend"         => "GPTSEO Einstellungen",
     "gpt_hidden_elements"   => ["Ausgeblendete Elemente berücksichtigen","Anhaken um auch ausgeblendete Elemente mit einzubeziehen."],
-    "gpt_custom_fields"     => ["Benutzerdefinierte Felder","Weitere Tabellen-Felder auswählen. WICHTIG: Serialisierter Inhalt wird noch nicht unterstützt."],
+    "gpt_custom_fields"     => ["Benutzerdefinierte Felder","Weitere Inhaltsfelder auswählen. Einfache und verschachtelte serialisierte Werte werden automatisch berücksichtigt."],
     "gpt_token"             => ["OpenAI Token","Tragen Sie hier den Token ein - <a href='https://platform.openai.com/account/api-keys' target='_blank' style='font-weight:bold;'>Hier Token generieren</a>"],
     "gpt_allowed_tables"    => ["Erlaubte Tabellen", "Seitenartikel sind standardmäßig aktiviert. Weitere Inhaltsquellen wie Nachrichten können bei Bedarf freigegeben werden."],
     "gpt_model_chat"        => ["OpenAI-Chatmodell","GPT-5.6 Luna ist das kosteneffiziente Standardmodell für SEO-Texte. Modelle können im <a href='https://developers.openai.com/api/docs/models' target='_blank' style='font-weight:bold;'>OpenAI-Modellkatalog</a> verglichen werden."],

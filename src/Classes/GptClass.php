@@ -3,77 +3,58 @@
 namespace Codebuster\GptBundle\Classes;
 
 use Contao\Config;
-use Exception;
 use Contao\ArticleModel;
-use Contao\StringUtil;
-use Contao\Database;
 use Contao\ContentModel;
-use Codebuster\GptBundle\Models\ContentElementsModel;
 use Contao\Controller;
-
-
+use Contao\StringUtil;
+use Exception;
 
 class GptClass
 {
+    public const CONTENT_FIELDS = [
+        'headline',
+        'sectionHeadline',
+        'text',
+        'html',
+        'unfilteredHtml',
+        'code',
+        'listitems',
+        'data',
+        'tableitems',
+        'summary',
+        'mooHeadline',
+        'alt',
+        'imageTitle',
+        'caption',
+        'linkTitle',
+        'titleText',
+        'playerCaption',
+    ];
+
     private static function prepareContent($objArticles): string
     {
-        $strContent = '';
-        $customFields = [];
-        if (Config::get("gpt_custom_fields")) {
-            $customFields = unserialize(Config::get("gpt_custom_fields"));
-        }
+        $content = [];
+        $visitedContentElements = [];
+        $customFields = StringUtil::deserialize(Config::get('gpt_custom_fields'), true);
+        $fields = array_unique(array_merge(self::CONTENT_FIELDS, $customFields));
+
+        Controller::loadDataContainer('tl_content');
 
         // get Content from all Articles
         if ($objArticles !== null) {
             foreach ($objArticles as $article) {
-                    foreach ($article as $contentElement) {
-
-                        // Load all palettes
-                        Controller::loadDataContainer('tl_content');
-
-                        if ($contentElement->type != "module") {
-
-                            $pallete = $GLOBALS['TL_DCA']['tl_content']['palettes'][$contentElement->type];
-
-                            if (self::findFieldInPallete($pallete, 'headline')) {
-                                $headline = unserialize(strip_tags(nl2br($contentElement->headline)));
-                                if ($headline["value"]) {
-                                    $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $headline["value"]))) . ' - ';
-                                }
-                            }
-
-                            if (self::findFieldInPallete($pallete, 'text')) {
-                                $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->text)));
-                            }
-
-                            if (!empty($customFields)) {
-                                foreach ($customFields as $customField) {
-                                    // dont regard serialized content
-                                    if (self::findFieldInPallete($pallete, $customField)) {
-                                        if (!is_array(unserialize($contentElement->$customField))) {
-                                            $strContent .= strip_tags(trim(preg_replace('/\s+/', ' ', $contentElement->$customField)));
-                                        }
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
-                
+                self::appendContentElements($article, $fields, $content, $visitedContentElements);
             }
         }
 
-
-        // Todo: do max chars even smarter
-        return $strContent;
+        return implode("\n", $content);
     }
 
     /**
      * Gets content by given table and id
      * 
-     * @param String $table
+     * @param string $table
      * @param int $id
-     * @return Object
      * @throws Exception If content isn't found
      */
     public static function getContent($table, $id): string
@@ -104,8 +85,8 @@ class GptClass
      * Checks if table is allowed to be accessed
      * in GPT settings
      * 
-     * @param String $table
-     * @return Boolean
+     * @param string $table
+     * @return bool
      */
     protected static function isValidTable($table)
     {
@@ -121,9 +102,8 @@ class GptClass
     /**
      * Fetches Article of given table
      * 
-     * @param String $table
-     * @param array $id
-     * @return Object
+     * @param string $table
+     * @param array $ids
      * @throws Exception If content isn't found
      */
     public static function getArticle(string $table, array $ids)
@@ -134,21 +114,19 @@ class GptClass
         if (\Contao\Database::getInstance()->tableExists($table) && self::isValidTable($table)) {
 
 
-            $blnHidden = false;
-            if (Config::get("gpt_hidden_elements") === true) {
-                $blnHidden = true;
-
-            }
+            $includeHidden = (bool) Config::get('gpt_hidden_elements');
 
             $objArticles = [];
             foreach ($ids as $id) {
-
-                $record = $GLOBALS['TL_MODELS'][$table]::findBy(["id=?", "published=?"], [$id, $blnHidden ? 0 : 1]);
+                $model = $GLOBALS['TL_MODELS'][$table];
+                $record = $includeHidden
+                    ? $model::findByPk($id)
+                    : $model::findBy(["id=?", "published=?"], [$id, 1]);
 
                 if ($record) {
                     // get contentelements from article
-                    $objArticles[] = ContentModel::findBy(["pid=?", 'ptable=?'], [$id, $table]);
-                } 
+                    $objArticles[] = self::findContentElements((int) $id, $table, $includeHidden);
+                }
             }
 
 
@@ -161,12 +139,108 @@ class GptClass
 
     /**
      * Find specific field in palette, so we don't send data that is not displayed in frontend.
-     * @param string $pallete
+     * @param string $palette
      * @param string $field
      * @return bool
      */
-    private static function findFieldInPallete(string $pallete, string $field): bool
+    private static function findFieldInPalette(string $palette, string $field): bool
     {
-        return (bool) preg_match('/\b' . preg_quote($field, '/') . '\b/', $pallete);
+        return (bool) preg_match('/\b' . preg_quote($field, '/') . '\b/', $palette);
+    }
+
+    private static function getActivePalette($contentElement): string
+    {
+        $palettes = $GLOBALS['TL_DCA']['tl_content']['palettes'] ?? [];
+        $subpalettes = $GLOBALS['TL_DCA']['tl_content']['subpalettes'] ?? [];
+        $selectors = $palettes['__selector__'] ?? [];
+        $palette = $palettes[$contentElement->type] ?? '';
+        $loadedSubpalettes = [];
+
+        do {
+            $paletteChanged = false;
+
+            foreach ($selectors as $selector) {
+                if (isset($loadedSubpalettes[$selector]) || !self::findFieldInPalette($palette, $selector)) {
+                    continue;
+                }
+
+                $value = $contentElement->$selector;
+
+                if ($value === null || $value === '' || $value === false || $value === '0' || $value === 0) {
+                    continue;
+                }
+
+                $valueKey = $selector . '_' . (string) $value;
+                $subpaletteKey = isset($subpalettes[$valueKey]) ? $valueKey : $selector;
+
+                if (!isset($subpalettes[$subpaletteKey])) {
+                    continue;
+                }
+
+                $palette .= ',' . $subpalettes[$subpaletteKey];
+                $loadedSubpalettes[$selector] = true;
+                $paletteChanged = true;
+            }
+        } while ($paletteChanged);
+
+        return $palette;
+    }
+
+    private static function appendContentElements($elements, array $fields, array &$content, array &$visited): void
+    {
+        if ($elements === null) {
+            return;
+        }
+
+        foreach ($elements as $contentElement) {
+            $contentElementId = (int) ($contentElement->id ?? 0);
+
+            if ($contentElementId > 0) {
+                if (isset($visited[$contentElementId])) {
+                    continue;
+                }
+
+                $visited[$contentElementId] = true;
+            }
+
+            if ($contentElement->type !== 'module') {
+                $palette = self::getActivePalette($contentElement);
+
+                foreach ($fields as $field) {
+                    if (!is_string($field) || $field === '' || !self::findFieldInPalette($palette, $field)) {
+                        continue;
+                    }
+
+                    $value = ContentValueExtractor::extract($contentElement->$field);
+
+                    if ($value !== '') {
+                        $content[] = $value;
+                    }
+                }
+            }
+
+            if ($contentElementId > 0) {
+                $children = self::findContentElements(
+                    $contentElementId,
+                    'tl_content',
+                    (bool) Config::get('gpt_hidden_elements')
+                );
+
+                self::appendContentElements($children, $fields, $content, $visited);
+            }
+        }
+    }
+
+    private static function findContentElements(int $parentId, string $parentTable, bool $includeHidden)
+    {
+        if ($includeHidden) {
+            return ContentModel::findBy(
+                ['pid=?', 'ptable=?'],
+                [$parentId, $parentTable],
+                ['order' => 'sorting']
+            );
+        }
+
+        return ContentModel::findPublishedByPidAndTable($parentId, $parentTable);
     }
 }

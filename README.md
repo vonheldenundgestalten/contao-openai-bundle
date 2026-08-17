@@ -49,6 +49,8 @@ After installation, only the OpenAI API key is required for regular pages. The e
 
 GPT-5.6 Luna is optimized for cost-sensitive, high-volume workloads. GPT-5.6 Terra and Sol are also available when a higher-capability model is preferred.
 
+Headlines, rich text, HTML, code, lists, description lists, tables, accordion titles and bodies, captions, and other core descriptive fields are read automatically, including content elements nested inside accordions and element groups. Additional fields selected under **Custom fields** support plain values as well as nested PHP-serialized arrays; markup and structural headline metadata are removed before the page content is sent to OpenAI.
+
 ## Best practice
 
 ![](docs/settings.png)
@@ -78,7 +80,6 @@ For the description:
 - [ ] Content weighting through ChatGPT as pre-fetch event
 - [ ] Define personality profile (role) for Chat completions API model
 - [ ] Considerations and testing for the actual maximum character length for the request
-- [ ] Considerations on how serialized content will be handled in the future
 - [ ] Make costs per Request more transparent (show used tokens and calculate with OpenAI pricing)
 - [ ] do
 - [ ] some
