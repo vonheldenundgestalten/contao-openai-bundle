@@ -42,7 +42,7 @@ Please make sure you don't have a custom be_tinyMCE.html5 template. If so, take 
 
 ## Default configuration
 
-After installation, only the OpenAI API key is required for regular pages. The extension enables page articles, uses the Chat Completions endpoint with `gpt-5.6-luna`, and includes ready-to-use prompts for SEO titles and descriptions, a temperature of `0.5`, and a maximum output of `300` tokens. All presets can still be changed in the Contao back end.
+After installation, only the OpenAI API key is required for regular pages. The extension enables page articles, uses the Chat Completions endpoint with `gpt-5.6-luna`, and prefills ready-to-use prompts for SEO titles and descriptions, a temperature of `0.5`, and a maximum output of `300` tokens. All presets can still be changed in the Contao back end.
 
 GPT-5.6 Luna is optimized for cost-sensitive, high-volume workloads. GPT-5.6 Terra and Sol are also available when a higher-capability model is preferred.
 

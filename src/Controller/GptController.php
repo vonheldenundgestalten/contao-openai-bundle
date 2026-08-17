@@ -16,13 +16,21 @@ use Throwable;
 #[Route('/_gpt', name: GptController::class, defaults: ['_scope' => 'backend', '_token_check' => true])]
 class GptController
 {
-    private const DEFAULT_ENDPOINT = 'Chat';
     private const DEFAULT_MODEL = 'gpt-5.6-luna';
-    private const DEFAULT_COMPLETION_MODEL = 'gpt-3.5-turbo-instruct';
     private const DEFAULT_TITLE_PROMPT = 'Write a concise and compelling SEO page title of 5 to 6 words for the supplied page content. Return only the title.';
     private const DEFAULT_DESCRIPTION_PROMPT = 'Write a clear and appealing SEO meta description of no more than 160 characters including spaces for the supplied page content. Return only the description.';
     private const DEFAULT_TEMPERATURE = 0.5;
     private const DEFAULT_MAX_TOKENS = 300;
+    private const SUPPORTED_MODELS = [
+        'gpt-5.6-luna',
+        'gpt-5.6-terra',
+        'gpt-5.6-sol',
+        'gpt-5.4-mini',
+        'gpt-5.4-nano',
+        'gpt-5.4',
+        'gpt-5-mini',
+        'gpt-4.1-mini',
+    ];
 
     public function __invoke(Request $request): Response
     {
@@ -98,38 +106,24 @@ class GptController
 
     private function doRequest(string $token, string $prompt, string $content): string
     {
-        $endpoint = (string) (Config::get('gpt_endpoint') ?: self::DEFAULT_ENDPOINT);
-
-        if ($endpoint === 'Complete') {
-            $url = 'https://api.openai.com/v1/completions';
-            $postData = [
-                'model' => Config::get('gpt_model_complete') ?: self::DEFAULT_COMPLETION_MODEL,
-                'prompt' => trim($prompt . ' ' . $content),
-                'max_tokens' => $this->getMaxTokens(),
-                'temperature' => $this->getTemperature(),
+        $url = 'https://api.openai.com/v1/chat/completions';
+        $model = $this->getModel();
+        $messages = $content === ''
+            ? [['role' => 'user', 'content' => $prompt]]
+            : [
+                ['role' => 'system', 'content' => $prompt],
+                ['role' => 'user', 'content' => $content],
             ];
-        } elseif ($endpoint === 'Chat') {
-            $url = 'https://api.openai.com/v1/chat/completions';
-            $model = (string) (Config::get('gpt_model_chat') ?: self::DEFAULT_MODEL);
-            $messages = $content === ''
-                ? [['role' => 'user', 'content' => $prompt]]
-                : [
-                    ['role' => 'system', 'content' => $prompt],
-                    ['role' => 'user', 'content' => $content],
-                ];
-            $postData = [
-                'model' => $model,
-                'messages' => $messages,
-                'max_completion_tokens' => $this->getMaxTokens(),
-                'temperature' => $this->getTemperature(),
-            ];
+        $postData = [
+            'model' => $model,
+            'messages' => $messages,
+            'max_completion_tokens' => $this->getMaxTokens(),
+            'temperature' => $this->getTemperature(),
+        ];
 
-            // GPT-5.4 and GPT-5.6 support sampling parameters when reasoning is disabled.
-            if (preg_match('/^gpt-5\.(?:4|6)(?:-|$)/', $model)) {
-                $postData['reasoning_effort'] = 'none';
-            }
-        } else {
-            throw new RuntimeException('The configured OpenAI endpoint is not supported.');
+        // GPT-5.4 and GPT-5.6 support sampling parameters when reasoning is disabled.
+        if (preg_match('/^gpt-5\.(?:4|6)(?:-|$)/', $model)) {
+            $postData['reasoning_effort'] = 'none';
         }
 
         try {
@@ -180,9 +174,7 @@ class GptController
             throw new RuntimeException(sprintf('OpenAI error%s: %s', $statusCode > 0 ? ' ' . $statusCode : '', $message));
         }
 
-        $result = $endpoint === 'Complete'
-            ? ($responseData['choices'][0]['text'] ?? '')
-            : ($responseData['choices'][0]['message']['content'] ?? '');
+        $result = $responseData['choices'][0]['message']['content'] ?? '';
         $result = trim((string) $result);
 
         if ($result === '') {
@@ -201,6 +193,13 @@ class GptController
         }
 
         return (float) $temperature;
+    }
+
+    private function getModel(): string
+    {
+        $model = (string) Config::get('gpt_model_chat');
+
+        return in_array($model, self::SUPPORTED_MODELS, true) ? $model : self::DEFAULT_MODEL;
     }
 
     private function getMaxTokens(): int
