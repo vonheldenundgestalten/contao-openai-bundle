@@ -19,6 +19,7 @@ class GptController
     private const DEFAULT_MODEL = 'gpt-5.6-luna';
     private const DEFAULT_TITLE_PROMPT = 'Write a concise and compelling SEO page title of 5 to 6 words for the supplied page content. Return only the title.';
     private const DEFAULT_DESCRIPTION_PROMPT = 'Write a clear and appealing SEO meta description of no more than 160 characters including spaces for the supplied page content. Return only the description.';
+    private const SEO_LANGUAGE_INSTRUCTION = 'Write the SEO content in the same language as the supplied page content, regardless of the language used in the prompt.';
     private const DEFAULT_TEMPERATURE = 0.5;
     private const DEFAULT_MAX_TOKENS = 300;
     private const SUPPORTED_MODELS = [
@@ -101,7 +102,9 @@ class GptController
         $default = $mode === 'title' ? self::DEFAULT_TITLE_PROMPT : self::DEFAULT_DESCRIPTION_PROMPT;
         $prompt = trim((string) Config::get($setting));
 
-        return $prompt !== '' ? $prompt : $default;
+        $prompt = $prompt !== '' ? $prompt : $default;
+
+        return $prompt . ' ' . self::SEO_LANGUAGE_INSTRUCTION;
     }
 
     private function doRequest(string $token, string $prompt, string $content): string
