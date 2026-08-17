@@ -19,7 +19,7 @@ class GptController
     private const DEFAULT_MODEL = 'gpt-5.6-luna';
     private const DEFAULT_TITLE_PROMPT = 'Write a concise and compelling SEO page title of 5 to 6 words for the supplied page content. Return only the title.';
     private const DEFAULT_DESCRIPTION_PROMPT = 'Write a clear and appealing SEO meta description of no more than 160 characters including spaces for the supplied page content. Return only the description.';
-    private const SEO_LANGUAGE_INSTRUCTION = 'Write the SEO content in the same language as the supplied page content, regardless of the language used in the prompt.';
+    private const SEO_LANGUAGE_INSTRUCTION = 'MANDATORY OUTPUT LANGUAGE: Detect the predominant language inside <page_content> and write the entire SEO output only in that language. Do not use the language of the prompt unless it matches the page content.';
     private const DEFAULT_TEMPERATURE = 0.5;
     private const DEFAULT_MAX_TOKENS = 300;
     private const SUPPORTED_MODELS = [
@@ -102,21 +102,14 @@ class GptController
         $default = $mode === 'title' ? self::DEFAULT_TITLE_PROMPT : self::DEFAULT_DESCRIPTION_PROMPT;
         $prompt = trim((string) Config::get($setting));
 
-        $prompt = $prompt !== '' ? $prompt : $default;
-
-        return $prompt . ' ' . self::SEO_LANGUAGE_INSTRUCTION;
+        return $prompt !== '' ? $prompt : $default;
     }
 
     private function doRequest(string $token, string $prompt, string $content): string
     {
         $url = 'https://api.openai.com/v1/chat/completions';
         $model = $this->getModel();
-        $messages = $content === ''
-            ? [['role' => 'user', 'content' => $prompt]]
-            : [
-                ['role' => 'system', 'content' => $prompt],
-                ['role' => 'user', 'content' => $content],
-            ];
+        $messages = $this->buildMessages($prompt, $content);
         $postData = [
             'model' => $model,
             'messages' => $messages,
@@ -185,6 +178,19 @@ class GptController
         }
 
         return trim($result, " \t\n\r\0\x0B\"");
+    }
+
+    private function buildMessages(string $prompt, string $content): array
+    {
+        if ($content === '') {
+            return [['role' => 'user', 'content' => $prompt]];
+        }
+
+        return [
+            ['role' => 'system', 'content' => $prompt],
+            ['role' => 'system', 'content' => self::SEO_LANGUAGE_INSTRUCTION],
+            ['role' => 'user', 'content' => "<page_content>\n" . $content . "\n</page_content>"],
+        ];
     }
 
     private function getTemperature(): float
