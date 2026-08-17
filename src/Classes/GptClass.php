@@ -83,8 +83,11 @@ class GptClass
         if ($table == 'tl_page') {
             $articles = ArticleModel::findByPid($id);
             $ids = [];
-            foreach ($articles as $v) {
-                $ids[] = $v->id;
+
+            if ($articles !== null) {
+                foreach ($articles as $v) {
+                    $ids[] = $v->id;
+                }
             }
 
             $table = "tl_article";
@@ -106,14 +109,13 @@ class GptClass
      */
     protected static function isValidTable($table)
     {
-        $tables = Config::get('gpt_allowed_tables');
-        $tables = StringUtil::deserialize($tables);
+        $tables = StringUtil::deserialize(Config::get('gpt_allowed_tables'), true);
 
-        foreach ($tables as $k => $v) {
-            if ($v == $table) {
-                return true;
-            }
+        if ($tables === []) {
+            $tables = ['tl_article'];
         }
+
+        return in_array($table, $tables, true);
     }
 
     /**

@@ -49,17 +49,18 @@ window.tinymce && tinymce.init({
               ],
               onSubmit: function (api) {
                   var data = api.getData();
-                  const fetchPromise = fetch("/_gpt?mode=tinymce&prompt="+data.aitext);
+                  const fetchPromise = fetch("/_gpt?mode=tinymce&prompt="+encodeURIComponent(data.aitext));
                   api.close();
-                  fetchPromise.then(response => {
-                      return response.json();
-                  }).then(content => {
-                      if(content.success === true) {
-                          editor.insertContent(content.content);
-                          api.close();
-                      } else {
-                          alert(content.content);
+                  fetchPromise.then(async response => {
+                      const content = await response.json();
+                      if (!response.ok || content.success !== true) {
+                          throw new Error(content.content || 'The text could not be generated.');
                       }
+                      return content;
+                  }).then(content => {
+                      editor.insertContent(content.content);
+                  }).catch(error => {
+                      alert(error.message || 'The text could not be generated.');
                   });
               }
           });

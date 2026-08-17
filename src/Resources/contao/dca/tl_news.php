@@ -41,8 +41,12 @@ class tl_news_gptbundle extends Contao\Backend {
 
                     console.log("🪄 Lets do some AI Magic 🪄");
 
-                    fetchPromise.then(response => {
-                        return response.json();
+                    fetchPromise.then(async response => {
+                        const content = await response.json();
+                        if (!response.ok || content.success !== true) {
+                            throw new Error(content.content || "The SEO content could not be generated.");
+                        }
+                        return content;
                     }).then(content => {
                         if(mode == "title") {
                             titleField.value = content.content;
@@ -53,13 +57,11 @@ class tl_news_gptbundle extends Contao\Backend {
                             // trigger this damn SERP preview
                             descField.dispatchEvent(new Event("input", { bubbles: true }));
                         }
-                        btn.disabled = false;
                         console.log("MAGIC 🪄🎩");
                     }).catch(error => {
-                        let tooltip = document.createElement("p");
-                        tooltip.innerHTML = error;
-                        tooltip.classList.add("tl_help", "tl_tip");
-                        btn.parentNode.appendChild(tooltip);
+                        alert(error.message || "The SEO content could not be generated.");
+                    }).finally(() => {
+                        btn.disabled = false;
                     });
                 }
             </script>
