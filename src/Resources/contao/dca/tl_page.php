@@ -35,25 +35,27 @@ class tl_page_gptbundle extends Contao\Backend {
                     
                     console.log("🪄 Lets do some AI Magic 🪄");
                     
-                    fetchPromise.then(response => {
-                        return response.json();
+                    fetchPromise.then(async response => {
+                        const content = await response.json();
+                        if (!response.ok || content.success !== true) {
+                            throw new Error(content.content || "The SEO content could not be generated.");
+                        }
+                        return content;
                     }).then(content => {
-                        if(content.success === true) {
-                            if(mode === "title") {
+                        if(mode === "title") {
                             titleField.value = content.content;
                             // trigger this damn SERP preview
                             titleField.dispatchEvent(new Event("input", { bubbles: true }));
-                            } else if(mode === "description") {
+                        } else if(mode === "description") {
                             descField.innerHTML = content.content;
                             // trigger this damn SERP preview
                             descField.dispatchEvent(new Event("input", { bubbles: true }));
-                            }
-                            btn.disabled = false;
-                            console.log("MAGIC 🪄🎩");   
-                        } else {
-                            btn.disabled = false;
-                            alert(content.content);
                         }
+                        console.log("MAGIC 🪄🎩");
+                    }).catch(error => {
+                        alert(error.message || "The SEO content could not be generated.");
+                    }).finally(() => {
+                        btn.disabled = false;
                     });
                 }
             </script>

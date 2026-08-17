@@ -9,12 +9,12 @@ $GLOBALS["TL_LANG"][$strTable] = [
     "gpt_hidden_elements"   => ["Ausgeblendete Elemente berücksichtigen","Anhaken um auch ausgeblendete Elemente mit einzubeziehen."],
     "gpt_custom_fields"     => ["Benutzerdefinierte Felder","Weitere Tabellen-Felder auswählen. WICHTIG: Serialisierter Inhalt wird noch nicht unterstützt."],
     "gpt_token"             => ["OpenAI Token","Tragen Sie hier den Token ein - <a href='https://platform.openai.com/account/api-keys' target='_blank' style='font-weight:bold;'>Hier Token generieren</a>"],
-    "gpt_endpoint"          => ["GPT Model"],
-    "gpt_allowed_tables"    => ["Erlaubte Tabellen"],
-    "gpt_model_chat"        => ["GPT Chat completion Model","Sehen Sie sich die Models und deren Funktion im <a href='https://platform.openai.com/playground?mode=chat' target='_blank' style='font-weight:bold;'>Playground</a> an."],
+    "gpt_endpoint"          => ["OpenAI-Endpunkt", "Chat wird empfohlen und ist vorausgewählt. Der alte Completions-Endpunkt bleibt für bestehende Installationen verfügbar."],
+    "gpt_allowed_tables"    => ["Erlaubte Tabellen", "Seitenartikel sind standardmäßig aktiviert. Weitere Inhaltsquellen wie Nachrichten können bei Bedarf freigegeben werden."],
+    "gpt_model_chat"        => ["OpenAI-Chatmodell","GPT-5.6 Luna ist das kosteneffiziente Standardmodell für SEO-Texte. Modelle können im <a href='https://developers.openai.com/api/docs/models' target='_blank' style='font-weight:bold;'>OpenAI-Modellkatalog</a> verglichen werden."],
     "gpt_model_complete"    => ["GPT Completion Model","Sehen Sie sich die Models und deren Funktion im <a href='https://platform.openai.com/playground?mode=complete' target='_blank' style='font-weight:bold;'>Playground</a> an."],
-    "gpt_title_prompt"      => ["SEO-Titel prompt","Tragen Sie hier das Prompt für die Titelgenerierung ein."],
-    "gpt_desc_prompt"       => ["SEO-Beschreibung prompt","Tragen Sie hier das Prompt für die Beschreibungsgenerierung ein."],
-    "gpt_temp"              => ["Temperatur","Die Samplingtemperatur liegt zwischen 0 und 1. Höhere Werte wie 0,8 machen die Ausgabe zufälliger, während niedrigere Werte wie 0,2 sie fokussierter und deterministischer machen. Wenn der Wert auf 0 gesetzt ist, verwendet das Modell die Log-Wahrscheinlichkeit, um die Temperatur automatisch zu erhöhen, bis bestimmte Schwellenwerte erreicht werden."],
-    "gpt_max_tokens"        => ["maximale Token","Die maximale Anzahl an Token, die beim Chat-Abschluss generiert werden sollen. Die Gesamtlänge der Eingabetokens und generierten Tokens ist durch die Kontextlänge des Modells begrenzt."]
+    "gpt_title_prompt"      => ["SEO-Titel-Prompt","Ein direkt nutzbarer Prompt ist voreingestellt und kann an den redaktionellen Stil angepasst werden."],
+    "gpt_desc_prompt"       => ["SEO-Beschreibungs-Prompt","Ein direkt nutzbarer Prompt mit einer Begrenzung auf 160 Zeichen ist voreingestellt."],
+    "gpt_temp"              => ["Temperatur","Steuert die Variation der Ausgabe zwischen 0 und 1. Der Standardwert 0,5 verbindet Konsistenz mit Variation."],
+    "gpt_max_tokens"        => ["Maximale Ausgabe-Token","Begrenzt die generierte Ausgabe. Der Standardwert beträgt 300 Token."]
 ];

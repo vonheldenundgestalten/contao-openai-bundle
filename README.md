@@ -40,11 +40,17 @@ Please make sure you don't have a custom be_tinyMCE.html5 template. If so, take 
 
 ![](docs/preview.png)
 
-## Best practise
+## Default configuration
+
+After installation, only the OpenAI API key is required for regular pages. The extension enables page articles, uses the Chat Completions endpoint with `gpt-5.6-luna`, and includes ready-to-use prompts for SEO titles and descriptions, a temperature of `0.5`, and a maximum output of `300` tokens. All presets can still be changed in the Contao back end.
+
+GPT-5.6 Luna is optimized for cost-sensitive, high-volume workloads. GPT-5.6 Terra and Sol are also available when a higher-capability model is preferred.
+
+## Best practice
 
 ![](docs/settings.png)
 
-- define usage limit in OpenAPI API Backend to have control over costs
+- Define a usage limit in the OpenAI API dashboard to control costs.
 - english versions of the prompts would be:
 
 For the title:
@@ -56,12 +62,8 @@ For the description:
 
 ## How to use
 
-- [ ] Insert token
-- [ ] Choose GPT model
-- [ ] Insert preferred Meta-title prompt (e.g. Schreibe für folgenden Text einen prägnanten Seitentitel bestehend aus 5 bis 6 Wörtern:)
-- [ ] Insert preferred Meta-description prompt (e.g. Schreibe für folgenden Text eine informative/emphatische/ansprechende Seitenbeschreibung, die weniger als 160 Zeichen inklusive Leerzeichen enthält:)
-- [ ] Set temperature (recommended: 0.5)
-- [ ] Set max_tokens (recommended: 300)
+- [ ] Insert the OpenAI API key. Model, prompts, temperature, and output length already have recommended defaults.
+- [ ] Optionally adjust the model and generation presets.
 - [ ] Set optional settings like hidden elements and custom fields
 - [ ] optional: add "tl_news" to the allowed tables to active the buttons for the News
 - [ ] Go to page settings and use the buttons below SERP preview

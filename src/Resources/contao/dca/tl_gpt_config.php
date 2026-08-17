@@ -32,13 +32,15 @@ $GLOBALS['TL_DCA'][$strTable] = [
         'gpt_endpoint' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_endpoint'],
             'inputType' => 'select',
+            'default' => 'Chat',
             'options' => ['Complete', 'Chat'],
             'eval' => ['multiple' => false, 'tl_class' => 'clr w50']
         ],
         'gpt_model_chat' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_model_chat'],
             'inputType' => 'select',
-            'options' => ['gpt-3.5-turbo', 'gpt-4','gpt-4o','gpt-4.1','gpt-4.1-mini','gpt-4o-mini','gpt-5-mini'],
+            'default' => 'gpt-5.6-luna',
+            'options' => ['gpt-5.6-luna', 'gpt-5.6-terra', 'gpt-5.6-sol', 'gpt-5.4-mini', 'gpt-5.4-nano', 'gpt-5.4', 'gpt-5-mini', 'gpt-4.1-mini'],
             'eval' => ['multiple' => false, 'tl_class' => 'clr w50']
         ],
         'gpt_model_complete' => [
@@ -50,21 +52,25 @@ $GLOBALS['TL_DCA'][$strTable] = [
         'gpt_title_prompt' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_title_prompt'],
             'inputType' => 'textarea',
+            'default' => 'Write a concise and compelling SEO page title of 5 to 6 words for the supplied page content. Return only the title.',
             'eval' => ['decodeEntities' => false,'allowHtml' => true, 'preserveTags' => true, 'tl_class' => 'clr']
         ],
         'gpt_desc_prompt' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_desc_prompt'],
             'inputType' => 'textarea',
+            'default' => 'Write a clear and appealing SEO meta description of no more than 160 characters including spaces for the supplied page content. Return only the description.',
             'eval' => ['tl_class' => 'clr']
         ],
         'gpt_temp' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_temp'],
             'inputType' => 'text',
+            'default' => '0.5',
             'eval' => ['rgxp'=>'digit', 'maxlength' => 3, 'nospace'=>true,'tl_class' => 'w50']
         ],
         'gpt_max_tokens' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_max_tokens'],
             'inputType' => 'text',
+            'default' => '300',
             'eval' => ['rgxp'=>'natural', 'nospace'=>true,'tl_class' => 'w50']
         ],
         'gpt_hidden_elements' => [
@@ -81,6 +87,7 @@ $GLOBALS['TL_DCA'][$strTable] = [
         ],
         'gpt_allowed_tables' => [
             'label' => &$GLOBALS['TL_LANG'][$strTable]['gpt_allowed_tables'],
+            'default'                  => ['tl_article'],
             'inputType'               => 'select',
             'options_callback'        => array('tl_gpt_config', 'getTables'),
             'eval'                    => array('chosen'=>true, 'multiple'=>true, 'tl_class'=>'w100')
