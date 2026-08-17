@@ -43,6 +43,9 @@
     "require-dev": {
         "contao/manager-plugin": "^2.3.1"
     },
+    "suggest": {
+        "mvo/contao-group-widget": "Enables ordered extraction from serialized and entity-backed group fields."
+    },
     "conflict": {
         "contao/core": "*",
         "contao/manager-plugin": "<2.0 || >=3.0"
