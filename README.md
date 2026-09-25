@@ -83,7 +83,7 @@ For the title:
 For the description:
 > Write an informative/emphatic/appealing page description for the following text that contains less than 160 characters including spaces:
 
-The output language is detected from the analyzed page content and enforced internally. Existing custom prompts do not need to include a language instruction.
+For regular pages, the output language is taken from the language configured on the Contao website root and enforced internally. Content-based language detection remains the fallback for other content sources. Existing custom prompts do not need to include a language instruction.
 
 ## How to use
 

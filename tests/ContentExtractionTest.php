@@ -43,6 +43,16 @@ namespace Contao {
         }
     }
 
+    final class PageModel
+    {
+        public static $pages = [];
+
+        public static function findByPk($id)
+        {
+            return self::$pages[$id] ?? null;
+        }
+    }
+
     final class System
     {
         public static $container;
@@ -60,6 +70,7 @@ namespace {
     use Codebuster\GptBundle\Classes\GroupWidgetContentExtractor;
     use Contao\Config;
     use Contao\ContentModel;
+    use Contao\PageModel;
     use Contao\System;
 
     require_once __DIR__ . '/../src/Classes/ContentValueExtractor.php';
@@ -163,6 +174,15 @@ namespace {
         }))->extract('tl_content', 20, 'contentGroup') ?? '',
         'unavailable group widget storage'
     );
+
+    PageModel::$pages = [
+        3 => (object) ['id' => 3, 'pid' => 2, 'language' => ''],
+        2 => (object) ['id' => 2, 'pid' => 1, 'language' => ''],
+        1 => (object) ['id' => 1, 'pid' => 0, 'language' => 'en_US'],
+    ];
+
+    $assertSame('en-US', GptClass::getPageLanguage(3), 'website root language');
+    $assertSame('', GptClass::getPageLanguage(99), 'missing page language');
 
     Config::$values['gpt_custom_fields'] = serialize(['customContent', 'customCaption', 'contentGroup']);
     $GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'] = ['addImage', 'overwriteMeta'];

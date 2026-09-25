@@ -20,6 +20,7 @@ class GptController
     private const DEFAULT_TITLE_PROMPT = 'Write a concise and compelling SEO page title of 5 to 6 words for the supplied page content. Return only the title.';
     private const DEFAULT_DESCRIPTION_PROMPT = 'Write a clear and appealing SEO meta description of no more than 160 characters including spaces for the supplied page content. Return only the description.';
     private const SEO_LANGUAGE_INSTRUCTION = 'MANDATORY OUTPUT LANGUAGE: Detect the predominant language inside <page_content> and write the entire SEO output only in that language. Do not use the language of the prompt unless it matches the page content.';
+    private const SEO_CONFIGURED_LANGUAGE_INSTRUCTION = 'MANDATORY OUTPUT LANGUAGE: The page language configured in the CMS is <%s>. Write the entire SEO output only in this language. This configured language is authoritative; do not infer the output language from the prompt or page content.';
     private const DEFAULT_TEMPERATURE = 0.5;
     private const DEFAULT_MAX_TOKENS = 300;
     private const SUPPORTED_MODELS = [
@@ -56,6 +57,7 @@ class GptController
 
         try {
             $prompt = $this->getPrompt($request, $mode);
+            $language = $this->getLanguage($request, $mode);
 
             if ($prompt === '' && !in_array($mode, ['title', 'description', 'tinymce'], true)) {
                 return $this->errorResponse('Unknown generation mode.', Response::HTTP_BAD_REQUEST);
@@ -72,7 +74,7 @@ class GptController
             }
 
             return new JsonResponse([
-                'content' => $this->doRequest($token, $prompt, $content),
+                'content' => $this->doRequest($token, $prompt, $content, $language),
                 'success' => true,
             ]);
         } catch (RuntimeException $exception) {
@@ -156,7 +158,7 @@ class GptController
     {
         $url = 'https://api.openai.com/v1/chat/completions';
         $model = $this->getModel();
-        $messages = $this->buildMessages($prompt, $content);
+        $messages = $this->buildMessages($prompt, $content, $language);
         $postData = [
             'model' => $model,
             'messages' => $messages,
@@ -227,7 +229,7 @@ class GptController
         return trim($result, " \t\n\r\0\x0B\"");
     }
 
-    private function buildMessages(string $prompt, string $content): array
+    private function buildMessages(string $prompt, string $content, string $language = ''): array
     {
         if ($content === '') {
             return [['role' => 'user', 'content' => $prompt]];
@@ -235,7 +237,12 @@ class GptController
 
         $messages = [['role' => 'system', 'content' => $prompt]];
 
-        if (stripos($prompt, 'MANDATORY OUTPUT LANGUAGE:') === false) {
+        if ($language !== '') {
+            $messages[] = [
+                'role' => 'system',
+                'content' => sprintf(self::SEO_CONFIGURED_LANGUAGE_INSTRUCTION, $language),
+            ];
+        } elseif (stripos($prompt, 'MANDATORY OUTPUT LANGUAGE:') === false) {
             $messages[] = ['role' => 'system', 'content' => self::SEO_LANGUAGE_INSTRUCTION];
         }
 

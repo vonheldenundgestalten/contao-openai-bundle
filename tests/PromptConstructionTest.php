@@ -8,6 +8,17 @@ $controller = new GptController();
 $method = new ReflectionMethod(GptController::class, 'buildMessages');
 $method->setAccessible(true);
 
+$messages = $method->invoke($controller, 'Verfassen Sie eine kurze Seitenbeschreibung.', 'English conference content', 'en');
+
+if ($messages !== [
+    ['role' => 'system', 'content' => 'Verfassen Sie eine kurze Seitenbeschreibung.'],
+    ['role' => 'system', 'content' => 'MANDATORY OUTPUT LANGUAGE: The page language configured in the CMS is <en>. Write the entire SEO output only in this language. This configured language is authoritative; do not infer the output language from the prompt or page content.'],
+    ['role' => 'user', 'content' => "<page_content>\nEnglish conference content\n</page_content>"],
+]) {
+    fwrite(STDERR, "SEO prompt messages do not enforce the configured page language.\n");
+    exit(1);
+}
+
 $messages = $method->invoke($controller, 'Create a short SEO title.', 'Deutscher Seiteninhalt');
 
 if ($messages !== [

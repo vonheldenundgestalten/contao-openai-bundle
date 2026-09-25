@@ -6,6 +6,7 @@ use Contao\Config;
 use Contao\ArticleModel;
 use Contao\ContentModel;
 use Contao\Controller;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Exception;
@@ -80,6 +81,40 @@ class GptClass
         }
 
         return self::prepareContent(self::getArticle($table, $ids));
+    }
+
+    /**
+     * Resolves the language configured on the website root of a page.
+     */
+    public static function getPageLanguage(int $pageId): string
+    {
+        $visited = [];
+        $page = PageModel::findByPk($pageId);
+
+        while ($page !== null) {
+            $id = (int) ($page->id ?? 0);
+
+            if ($id < 1 || isset($visited[$id])) {
+                return '';
+            }
+
+            $visited[$id] = true;
+            $language = trim((string) ($page->language ?? ''));
+
+            if ($language !== '') {
+                return str_replace('_', '-', $language);
+            }
+
+            $parentId = (int) ($page->pid ?? 0);
+
+            if ($parentId < 1) {
+                return '';
+            }
+
+            $page = PageModel::findByPk($parentId);
+        }
+
+        return '';
     }
 
     /**
