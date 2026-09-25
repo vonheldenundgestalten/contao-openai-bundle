@@ -56,14 +56,14 @@ class GptController
         }
 
         try {
-            $prompt = $this->getPrompt($request, $mode);
             $language = $this->getLanguage($request, $mode);
+            $prompt = $this->getPrompt($request, $mode, $language);
 
             if ($prompt === '' && !in_array($mode, ['title', 'description', 'tinymce'], true)) {
                 return $this->errorResponse('Unknown generation mode.', Response::HTTP_BAD_REQUEST);
             }
 
-            $content = $this->getContent($request, $mode);
+            $content = $this->getContent($request, $mode, $language);
 
             if ($prompt === '') {
                 return $this->errorResponse('Please define a prompt in the OpenAI settings.', Response::HTTP_BAD_REQUEST);
@@ -84,7 +84,7 @@ class GptController
         }
     }
 
-    private function getContent(Request $request, string $mode): string
+    private function getContent(Request $request, string $mode, string $language): string
     {
         if ($mode === 'tinymce') {
             return '';
@@ -97,7 +97,7 @@ class GptController
             throw new RuntimeException('The page or content source is missing.');
         }
 
-        $content = $this->executeHook('gptGetContent', [$table, $id, $mode]);
+        $content = $this->executeHook('gptGetContent', [$table, $id, $mode, $language]);
 
         if ($content !== null) {
             return trim($content);
@@ -106,7 +106,7 @@ class GptController
         return trim(GptClass::getContent($table, $id));
     }
 
-    private function getPrompt(Request $request, string $mode): string
+    private function getPrompt(Request $request, string $mode, string $language): string
     {
         if ($mode === 'tinymce') {
             return trim((string) $request->query->get('prompt', ''));
@@ -116,6 +116,7 @@ class GptController
             $mode,
             (string) $request->query->get('table', ''),
             $request->query->getInt('id'),
+            $language,
         ]);
 
         if ($prompt !== null && trim($prompt) !== '') {
@@ -131,6 +132,19 @@ class GptController
         $prompt = trim((string) Config::get($setting));
 
         return $prompt !== '' ? $prompt : $default;
+    }
+
+    /**
+     * Resolves the language configured on the page's website root, so it can
+     * be enforced as the mandatory SEO output language.
+     */
+    private function getLanguage(Request $request, string $mode): string
+    {
+        if ($mode === 'tinymce' || (string) $request->query->get('table', '') !== 'tl_page') {
+            return '';
+        }
+
+        return GptClass::getPageLanguage($request->query->getInt('id'));
     }
 
     /**
@@ -154,7 +168,7 @@ class GptController
         return null;
     }
 
-    private function doRequest(string $token, string $prompt, string $content): string
+    private function doRequest(string $token, string $prompt, string $content, string $language = ''): string
     {
         $url = 'https://api.openai.com/v1/chat/completions';
         $model = $this->getModel();
