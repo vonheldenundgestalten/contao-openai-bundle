@@ -44,7 +44,8 @@ class GptController
 
         $mode = (string) $request->query->get('mode', '');
 
-        if (!in_array($mode, ['title', 'description', 'tinymce'], true)) {
+        // Custom modes (e.g. "keywords") can be provided through the gptGetPrompt hook
+        if ($mode !== 'tinymce' && !preg_match('/^[a-z][a-z0-9_]*$/', $mode)) {
             return $this->errorResponse('Unknown generation mode.', Response::HTTP_BAD_REQUEST);
         }
 
@@ -55,9 +56,14 @@ class GptController
         }
 
         try {
-            $content = $this->getContent($request, $mode);
-            $prompt = $this->getPrompt($request, $mode);
             $language = $this->getLanguage($request, $mode);
+            $prompt = $this->getPrompt($request, $mode, $language);
+
+            if ($prompt === '' && !in_array($mode, ['title', 'description', 'tinymce'], true)) {
+                return $this->errorResponse('Unknown generation mode.', Response::HTTP_BAD_REQUEST);
+            }
+
+            $content = $this->getContent($request, $mode, $language);
 
             if ($prompt === '') {
                 return $this->errorResponse('Please define a prompt in the OpenAI settings.', Response::HTTP_BAD_REQUEST);
@@ -78,7 +84,7 @@ class GptController
         }
     }
 
-    private function getContent(Request $request, string $mode): string
+    private function getContent(Request $request, string $mode, string $language): string
     {
         if ($mode === 'tinymce') {
             return '';
@@ -91,13 +97,34 @@ class GptController
             throw new RuntimeException('The page or content source is missing.');
         }
 
+        $content = $this->executeHook('gptGetContent', [$table, $id, $mode, $language]);
+
+        if ($content !== null) {
+            return trim($content);
+        }
+
         return trim(GptClass::getContent($table, $id));
     }
 
-    private function getPrompt(Request $request, string $mode): string
+    private function getPrompt(Request $request, string $mode, string $language): string
     {
         if ($mode === 'tinymce') {
             return trim((string) $request->query->get('prompt', ''));
+        }
+
+        $prompt = $this->executeHook('gptGetPrompt', [
+            $mode,
+            (string) $request->query->get('table', ''),
+            $request->query->getInt('id'),
+            $language,
+        ]);
+
+        if ($prompt !== null && trim($prompt) !== '') {
+            return trim($prompt);
+        }
+
+        if (!in_array($mode, ['title', 'description'], true)) {
+            return '';
         }
 
         $setting = $mode === 'title' ? 'gpt_title_prompt' : 'gpt_desc_prompt';
@@ -107,6 +134,10 @@ class GptController
         return $prompt !== '' ? $prompt : $default;
     }
 
+    /**
+     * Resolves the language configured on the page's website root, so it can
+     * be enforced as the mandatory SEO output language.
+     */
     private function getLanguage(Request $request, string $mode): string
     {
         if ($mode === 'tinymce' || (string) $request->query->get('table', '') !== 'tl_page') {
@@ -116,7 +147,28 @@ class GptController
         return GptClass::getPageLanguage($request->query->getInt('id'));
     }
 
-    private function doRequest(string $token, string $prompt, string $content, string $language): string
+    /**
+     * Returns the first string returned by a hook listener, null if no
+     * listener handles the request.
+     */
+    private function executeHook(string $name, array $arguments): ?string
+    {
+        System::getContainer()->get('contao.framework')->initialize();
+
+        foreach ($GLOBALS['TL_HOOKS'][$name] ?? [] as $callback) {
+            $result = is_callable($callback)
+                ? $callback(...$arguments)
+                : System::importStatic($callback[0])->{$callback[1]}(...$arguments);
+
+            if (is_string($result)) {
+                return $result;
+            }
+        }
+
+        return null;
+    }
+
+    private function doRequest(string $token, string $prompt, string $content, string $language = ''): string
     {
         $url = 'https://api.openai.com/v1/chat/completions';
         $model = $this->getModel();

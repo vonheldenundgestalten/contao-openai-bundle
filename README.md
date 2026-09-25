@@ -53,6 +53,23 @@ Headlines, rich text, HTML, code, lists, description lists, tables, accordion ti
 
 If [`mvo/contao-group-widget`](https://github.com/m-vo/contao-group-widget) is installed, group fields are available under **Custom fields** and are read in their configured element and field order. Both the default serialized storage and entity storage are supported. The integration is optional; without the group widget, regular content extraction is unchanged.
 
+## Hooks
+
+Other bundles can use the `/_gpt` endpoint for their own tables and fields:
+
+- `gptGetContent(string $table, int $id, string $mode): ?string` returns the text that is sent to OpenAI. Return `null` to use the default content extraction.
+- `gptGetPrompt(string $mode, string $table, int $id): ?string` returns the prompt. Return `null` to use the prompts from the settings. Modes other than `title` and `description` (e.g. `keywords`) require a prompt from this hook.
+
+```php
+#[AsHook('gptGetContent')]
+public function getContent(string $table, int $id, string $mode): ?string
+{
+    return $table === 'tl_product' ? ProductModel::findByPk($id)?->description : null;
+}
+```
+
+The buttons are then rendered by the other bundle and call `/_gpt?table=tl_product&id=…&mode=…`.
+
 ## Best practice
 
 ![](docs/settings.png)
