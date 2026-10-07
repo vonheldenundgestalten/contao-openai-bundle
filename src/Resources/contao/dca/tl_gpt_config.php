@@ -17,9 +17,9 @@ $loadGptDefault = static function ($default): \Closure {
     };
 };
 
-$gptModels = ['gpt-5.6-luna', 'gpt-5.6-terra', 'gpt-5.6-sol', 'gpt-5.4-mini', 'gpt-5.4-nano', 'gpt-5.4', 'gpt-5-mini', 'gpt-4.1-mini'];
+$gptModels = ['gpt-6-luna', 'gpt-5.6-luna', 'gpt-6.1-sol', 'gpt-5.6-terra', 'gpt-5.6-sol', 'gpt-5.4-mini', 'gpt-5.4', 'gpt-4.1-mini'];
 $loadGptModel = static function ($value) use ($gptModels) {
-    return in_array($value, $gptModels, true) ? $value : 'gpt-5.6-luna';
+    return in_array($value, $gptModels, true) ? $value : 'gpt-6-luna';
 };
 
 $GLOBALS['TL_DCA'][$strTable] = [

@@ -45,9 +45,9 @@ Please make sure you don't have a custom be_tinyMCE.html5 template. If so, take 
 
 ## Default configuration
 
-After installation, only the OpenAI API key is required for regular pages. The extension enables page articles, uses the Chat Completions endpoint with `gpt-5.6-luna`, and prefills ready-to-use prompts for SEO titles and descriptions, a temperature of `0.5`, and a maximum output of `300` tokens. All presets can still be changed in the Contao back end.
+After installation, only the OpenAI API key is required for regular pages. The extension enables page articles, uses the Chat Completions endpoint with `gpt-6-luna`, and prefills ready-to-use prompts for SEO titles and descriptions, a temperature of `0.5`, and a maximum output of `300` tokens. All presets can still be changed in the Contao back end.
 
-GPT-5.6 Luna is optimized for cost-sensitive, high-volume workloads. GPT-5.6 Terra and Sol are also available when a higher-capability model is preferred.
+GPT-6 Luna is optimized for cost-sensitive, high-volume workloads. GPT-6.1 Sol and GPT-5.6 Luna are available alongside GPT-5.6 Terra/Sol, GPT-5.4 Mini/GPT-5.4, and GPT-4.1 Mini. Deprecated GPT-5.4 Nano and GPT-5 Mini are no longer selectable; saved selections of these models fall back to GPT-6 Luna. GPT-6.1 Sol uses low reasoning effort, ignores temperature, and adds 4,096 tokens to the configured completion budget for reasoning (the API limit covers both reasoning and visible output). Other supported models retain the configured token budget.
 
 Headlines, rich text, HTML, code, lists, description lists, tables, accordion titles and bodies, captions, and other core descriptive fields are read automatically, including content elements nested inside accordions and element groups. Additional fields selected under **Custom fields** support plain values as well as nested PHP-serialized arrays; markup and structural headline metadata are removed before the page content is sent to OpenAI.
 

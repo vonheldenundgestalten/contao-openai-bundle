@@ -16,7 +16,7 @@ use Throwable;
 #[Route('/_gpt', name: GptController::class, defaults: ['_scope' => 'backend', '_token_check' => true])]
 class GptController
 {
-    private const DEFAULT_MODEL = 'gpt-5.6-luna';
+    private const DEFAULT_MODEL = 'gpt-6-luna';
     private const DEFAULT_TITLE_PROMPT = 'Write a concise and compelling SEO page title of 5 to 6 words for the supplied page content. Return only the title.';
     private const DEFAULT_DESCRIPTION_PROMPT = 'Write a clear and appealing SEO meta description of no more than 160 characters including spaces for the supplied page content. Return only the description.';
     private const SEO_LANGUAGE_INSTRUCTION = 'MANDATORY OUTPUT LANGUAGE: Detect the predominant language inside <page_content> and write the entire SEO output only in that language. Do not use the language of the prompt unless it matches the page content.';
@@ -24,13 +24,13 @@ class GptController
     private const DEFAULT_TEMPERATURE = 0.5;
     private const DEFAULT_MAX_TOKENS = 300;
     private const SUPPORTED_MODELS = [
+        'gpt-6-luna',
         'gpt-5.6-luna',
+        'gpt-6.1-sol',
         'gpt-5.6-terra',
         'gpt-5.6-sol',
         'gpt-5.4-mini',
-        'gpt-5.4-nano',
         'gpt-5.4',
-        'gpt-5-mini',
         'gpt-4.1-mini',
     ];
 
@@ -171,19 +171,7 @@ class GptController
     private function doRequest(string $token, string $prompt, string $content, string $language = ''): string
     {
         $url = 'https://api.openai.com/v1/chat/completions';
-        $model = $this->getModel();
-        $messages = $this->buildMessages($prompt, $content, $language);
-        $postData = [
-            'model' => $model,
-            'messages' => $messages,
-            'max_completion_tokens' => $this->getMaxTokens(),
-            'temperature' => $this->getTemperature(),
-        ];
-
-        // GPT-5.4 and GPT-5.6 support sampling parameters when reasoning is disabled.
-        if (preg_match('/^gpt-5\.(?:4|6)(?:-|$)/', $model)) {
-            $postData['reasoning_effort'] = 'none';
-        }
+        $postData = $this->buildRequestData($prompt, $content, $language);
 
         try {
             $payload = json_encode($postData, JSON_THROW_ON_ERROR);
@@ -263,6 +251,28 @@ class GptController
         $messages[] = ['role' => 'user', 'content' => "<page_content>\n" . $content . "\n</page_content>"];
 
         return $messages;
+    }
+
+    private function buildRequestData(string $prompt, string $content, string $language = ''): array
+    {
+        $model = $this->getModel();
+        $postData = [
+            'model' => $model,
+            'messages' => $this->buildMessages($prompt, $content, $language),
+            'max_completion_tokens' => $this->getMaxTokens(),
+            'temperature' => $this->getTemperature(),
+        ];
+
+        if ($model === 'gpt-6.1-sol') {
+            $postData['reasoning_effort'] = 'low';
+            unset($postData['temperature']);
+            // The completion limit includes reasoning tokens as well as visible output.
+            $postData['max_completion_tokens'] += 4096;
+        } elseif ($model === 'gpt-6-luna' || preg_match('/^gpt-5\.(?:4|6)(?:-|$)/', $model)) {
+            $postData['reasoning_effort'] = 'none';
+        }
+
+        return $postData;
     }
 
     private function getTemperature(): float
